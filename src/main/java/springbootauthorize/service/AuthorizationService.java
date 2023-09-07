@@ -1,9 +1,11 @@
 package springbootauthorize.service;
 
+import org.springframework.validation.annotation.Validated;
 import springbootauthorize.exception.InvalidCredentials;
 import springbootauthorize.exception.UnauthorizedUser;
 import org.springframework.stereotype.Service;
 import springbootauthorize.permission.Authorities;
+import springbootauthorize.permission.User;
 import springbootauthorize.repository.UserRepository;
 
 import java.util.List;
@@ -16,13 +18,14 @@ public class AuthorizationService {
         this.userRepository = userRepository;
     }
 
-    public List<Authorities> getAuthorities(String user, String password) {
-        if (isEmpty(user) || isEmpty(password)) {
-            throw new InvalidCredentials("User name or password is empty");
+    public List<Authorities> getAuthorities(User user) {
+        if (isEmpty(user.getName()) || isEmpty(user.getPassword())) {
+            throw new InvalidCredentials("user or password is empty");
         }
-        List<Authorities> userAuthorities = userRepository.getUserAuthorities(user, password);
+        List<Authorities> userAuthorities = userRepository.getUserAuthorities(user.getName(),
+                user.getPassword());
         if (isEmpty(userAuthorities)) {
-            throw new UnauthorizedUser("Unknown user " + user);
+            throw new UnauthorizedUser("unknown user " + user.getName());
         }
         return userAuthorities;
     }
